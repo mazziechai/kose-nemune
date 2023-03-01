@@ -5,16 +5,21 @@
 package cafe.ferret.kosenemune.extensions
 
 import cafe.ferret.kosenemune.data.Word
+import cafe.ferret.kosenemune.isDeveloper
 import com.kotlindiscord.kord.extensions.commands.Arguments
 import com.kotlindiscord.kord.extensions.commands.converters.impl.string
 import com.kotlindiscord.kord.extensions.components.components
 import com.kotlindiscord.kord.extensions.components.linkButton
 import com.kotlindiscord.kord.extensions.components.publicButton
 import com.kotlindiscord.kord.extensions.extensions.Extension
+import com.kotlindiscord.kord.extensions.extensions.ephemeralSlashCommand
 import com.kotlindiscord.kord.extensions.extensions.publicSlashCommand
 import com.kotlindiscord.kord.extensions.types.PublicInteractionContext
 import com.kotlindiscord.kord.extensions.types.edit
+import com.kotlindiscord.kord.extensions.types.respond
 import com.kotlindiscord.kord.extensions.types.respondEphemeral
+import com.kotlindiscord.kord.extensions.utils.scheduling.Scheduler
+import com.kotlindiscord.kord.extensions.utils.scheduling.Task
 import com.kotlindiscord.kord.extensions.utils.suggestStringCollection
 import dev.kord.common.entity.ButtonStyle
 import dev.kord.common.entity.Snowflake
@@ -29,6 +34,7 @@ import io.ktor.serialization.kotlinx.json.*
 import kotlinx.serialization.json.Json
 import me.xdrop.fuzzywuzzy.FuzzySearch
 import mu.KotlinLogging
+import kotlin.time.Duration.Companion.minutes
 
 class KataExtension : Extension() {
     override val name = "kata"
@@ -41,11 +47,18 @@ class KataExtension : Extension() {
         }
     }
     private lateinit var words: List<Word>
+    private val scheduler = Scheduler()
+    private lateinit var kataTask: Task
+
+    private val logger = KotlinLogging.logger { }
 
     override suspend fun setup() {
-        words = httpClient.get("https://kata.nimi.li/words").body()
+        kataTask = scheduler.schedule(delay = 10.minutes, startNow = true, repeat = true) {
+            words = httpClient.get("https://kata.nimi.li/words").body()
+            logger.debug { "Received word data!" }
+        }
 
-        KotlinLogging.logger { }.debug { words.toString() }
+        kataTask.callNow()
 
         publicSlashCommand(::KataCommandArgs) {
             name = "kata"
@@ -63,6 +76,21 @@ class KataExtension : Extension() {
                 }
 
                 kataDescription(kata, user.id)
+            }
+        }
+
+        ephemeralSlashCommand {
+            name = "refresh"
+            description = "Developer only command to refresh kata now."
+
+            check { isDeveloper { event.interaction.user.id } }
+
+            action {
+                kataTask.callNow()
+
+                respond {
+                    content = "Refreshed kata!"
+                }
             }
         }
     }
