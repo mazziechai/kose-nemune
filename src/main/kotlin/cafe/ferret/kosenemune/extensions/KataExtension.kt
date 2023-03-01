@@ -157,6 +157,8 @@ class KataExtension : Extension() {
                     action {
                         edit {
                             content = "(removed)"
+                            embeds = mutableListOf()
+                            components = mutableListOf()
                         }
                     }
                 }
