@@ -1,27 +1,6 @@
-# kose kata
+# kose nemune
 
-A Discord bot for creating "notes", a message that is stored in the bot then can be retrieved later.
-
-## Features
-
-- [x] Creating a note from a message
-- [x] Creating notes with a command
-- [x] Viewing a note with an ephemeral message
-- [x] Posting a note to chat
-- [x] Editing notes
-- [x] Deleting notes
-- [x] Referencing other notes with buttons to view those quotes as well
-- [x] Exporting notes to a JSON file
-- [x] Importing notes from a JSON file
-    - [x] Other bot formats
-- [x] Getting a list of a user's notes in a guild
-- [x] Getting a list of a user's notes in general
-- [x] Getting a list of a guild's notes
-- [x] Clearing notes in a guild
-
-## Technical to-do list
-
-- [ ] Make all note related commands subcommands of a larger note command
+A Discord bot with some utilities for the Nemune language.
 
 ## Setup
 
@@ -37,6 +16,6 @@ DEVELOPER=your ID
 ```
 
 - Download the main JAR from the CI artifacts
-- Run `java -jar kose-X.Y-SNAPSHOT.jar`
+- Run `java -jar kosenemune-1.0-SNAPSHOT.jar`
 
 The bot is now set up.
